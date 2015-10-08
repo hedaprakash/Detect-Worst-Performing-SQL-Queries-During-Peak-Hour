@@ -15,7 +15,7 @@
 #|{>\------------------------------------------------------------------------/<}|  
 #| = : = : = : = : = : = : = : = : = : = : = : = : = : = : = : = : = : = : = :	|  
 #+-----------------------------------------------------------------------------*/  
-
+-- create database 
 USE dbastuff
 GO
 set nocount on
@@ -123,6 +123,7 @@ SET @Lower = -730
 SET @Upper = -1
 SET @RowCount = 0
 
+begin tran
 WHILE @RowCount < 3000000
 BEGIN
 	SET @RowString = CAST(@RowCount AS VARCHAR(10))
@@ -147,7 +148,4 @@ BEGIN
 	SET @RowCount = @RowCount + 1
 END
 
-
-
-
-1
+commit tran

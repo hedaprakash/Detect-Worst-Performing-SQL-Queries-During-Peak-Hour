@@ -1,0 +1,17 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# SQL Server Management Studio Solution File, Format Version 13.00
+Project("{4F2E2C19-372F-40D8-9FA7-9D2138C6997A}") = "Detect_Worst_Queries", "Detect_Worst_Queries\Detect_Worst_Queries.ssmssqlproj", "{8B033931-7BFC-4398-91BC-A278D073E3B1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Default = Default|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{25290468-3184-41A4-A800-75B6D530C46F}.Default|Default.ActiveCfg = Default
+		{8B033931-7BFC-4398-91BC-A278D073E3B1}.Default|Default.ActiveCfg = Default
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
