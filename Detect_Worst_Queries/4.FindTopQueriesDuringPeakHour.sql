@@ -67,7 +67,7 @@ where  (a.execution_count > isnull(b.execution_count,0)
 or b.execution_count is null)
 and a.execution_count-isnull(b.execution_count,0)>0
 
--- select * from ##tmp_set_diff_all where query_hash = 0xE2049D09495FF6D6
+-- select * from ##tmp_set_diff_all where query_hash = 0x044DE9A79CE03870
 
 IF  object_id('tempdb..##tmp_set_diff_temp') is not null DROP TABLE ##tmp_set_diff_temp
 go
@@ -159,7 +159,7 @@ select * from master..TopQueries order by TotCPUTime desc
 -- select TotRows,* from master..TopQueries order by TotRows desc
 
 
--- select * from ##tmp_set_diff_all where query_hash = 0xE2049D09495FF6D6
+-- select sql_handle,* from ##tmp_set_diff_all where query_hash = 0x044DE9A79CE03870
 -- 0xE2049D09495FF6D6
 -- 0x044DE9A79CE03870
 -- select * from ##tmp_set_diff_all where sql_handle =  0x020000003B539005D7FC2995374A3CBE1428766CC16A0F470000000000000000000000000000000000000000
@@ -179,4 +179,28 @@ select * from master..TopQueries order by TotCPUTime desc
 --	,QueryText.number as QueryText_number,QueryText.encrypted as QueryText_encrypted,QueryText.text as QueryText_text
 --from ##tmp_set_diff as QueryStats
 --cross apply sys.dm_exec_sql_text(QueryStats.sql_handle) as QueryText
---where sql_handle =  0x020000003B539005D7FC2995374A3CBE1428766CC16A0F470000000000000000000000000000000000000000
+--where sql_handle =  0x02000000AE55EF0D0428C08D0B2212E179DBDB3635F5D0490000000000000000000000000000000000000000
+
+--select QueryText.*
+--from ##tmp_set_diff as QueryStats
+--cross apply sys.dm_exec_sql_text(QueryStats.sql_handle) as QueryText
+--where sql_handle =  0x02000000AE55EF0D0428C08D0B2212E179DBDB3635F5D0490000000000000000000000000000000000000000
+
+
+--IF  object_id('master..TopQueriesSummarized') is not null DROP TABLE master..TopQueriesSummarized
+--go
+--select 
+--	max(QueryExecuted) as QueryExecuted,max(QueryText_DatabaseName) as QueryText_DatabaseName ,max(QueryText_ObjectName) as QueryText_ObjectName
+--	,max(QueryText_schema_name) as QueryText_schema_name,sum(Total_execution_count) as Total_execution_count,sum(diff_execution_count) as diff_execution_count
+--	,avg(AvgCPUTime) as AvgCPUTime	,sum(TotCPUTime) as TotCPUTime,avg(AvgPhysicalRead) as AvgPhysicalRead
+--	,sum(TotPhysicalRead) as TotPhysicalRead,avg(AvgLogicalRead) as AvgLogicalRead,sum(TotLogicalRead) as TotLogicalRead
+--	,avg(AvgLogicalWrite) as AvgLogicalWrite,sum(TotLogicalwrite) as TotLogicalwrite,avg(AvgRows) as AvgRows,sum(TotRows) as TotRows
+--	,avg(Avg_clr_time) as Avg_clr_time,sum(Tot_clr_time) as Tot_clr_time,sum(DiffNoOfExePlans) as DiffNoOfExePlans,sum(FinalNoOfExePlans) as FinalNoOfExePlans
+--	,query_hash
+--into master..TopQueriesSummarized
+--from ##tmp_set_diff_Detail_plan
+--group by query_hash
+--order by AvgCPUTime desc
+
+--select * from master..TopQueriesSummarized order by TotCPUTime desc
+
