@@ -13,6 +13,7 @@ from sys.dm_exec_query_stats as QueryStats
 group by sql_handle,statement_start_offset,statement_end_offset
 
 --select * from sys.dm_exec_query_stats as QueryStats where query_hash = 0x044DE9A79CE03870
+--select * from ##tmp_set1 as QueryStats where query_hash = 0x044DE9A79CE03870
 GO
 WAITFOR DELAY '00:00:05'
 GO
@@ -31,11 +32,14 @@ from sys.dm_exec_query_stats as QueryStats
 group by sql_handle,statement_start_offset,statement_end_offset,query_hash
 GO
 
+-- select * from ##tmp_set2 where query_hash = 0x044DE9A79CE03870
+
+
 IF  object_id('tempdb..##tmp_set_diff_all') is not null DROP TABLE ##tmp_set_diff_all
 go
 -- Showing queries executed in last 5 min with execution stats
 select 
-isnull(b.execution_count,0) as Total_execution_count
+isnull(a.execution_count,0) as Total_execution_count
 ,a.execution_count-isnull(b.execution_count,0) as diff_execution_count
 ,(a.total_worker_time - isnull(b.total_worker_time,0)) /(a.execution_count-isnull(b.execution_count,0)) as AvgCPUTime
 ,(a.total_worker_time - isnull(b.total_worker_time,0))  as TotCPUTime
@@ -61,8 +65,9 @@ and a.statement_start_offset=b.statement_start_offset
 and a.statement_end_offset=b.statement_end_offset
 where  (a.execution_count > isnull(b.execution_count,0)
 or b.execution_count is null)
-and a.execution_count-isnull(b.execution_count,0)>1
+and a.execution_count-isnull(b.execution_count,0)>0
 
+-- select * from ##tmp_set_diff_all where query_hash = 0xE2049D09495FF6D6
 
 IF  object_id('tempdb..##tmp_set_diff_temp') is not null DROP TABLE ##tmp_set_diff_temp
 go
@@ -89,8 +94,11 @@ go
 select distinct * into ##tmp_set_diff from ##tmp_set_diff_temp 
 GO
 
+--select * from sys.dm_exec_query_stats as QueryStats where query_hash = 0x044DE9A79CE03870
+-- select * from ##tmp_set_diff where query_hash = 0x044DE9A79CE03870
 delete from ##tmp_set_diff where diff_execution_count<10 and AvgCPUTime<1001
 
+--select * from ##tmp_set_diff where diff_execution_count<10 and AvgCPUTime<1001
 
 GO
 IF  object_id('tempdb..##tmp_set_diff_Detail') is not null DROP TABLE ##tmp_set_diff_Detail
@@ -128,7 +136,9 @@ GO
 IF  object_id('master..TopQueries') is not null DROP TABLE master..TopQueries
 go
 select 
-	PollInt,query_plan,QueryExecuted,QueryText_DatabaseName,QueryText_ObjectName,QueryText_schema_name,Total_execution_count,diff_execution_count,AvgCPUTime,TotCPUTime,AvgPhysicalRead,TotPhysicalRead,AvgLogicalRead,TotLogicalRead,AvgLogicalWrite,TotLogicalwrite,AvgRows,TotRows,Avg_clr_time,Tot_clr_time,DiffNoOfExePlans,FinalNoOfExePlans,sql_handle,statement_start_offset,statement_end_offset,plan_handle,PreRunime,PostRunime
+	PollInt,query_plan,QueryExecuted,QueryText_DatabaseName,QueryText_ObjectName,QueryText_schema_name,Total_execution_count,diff_execution_count,AvgCPUTime
+	,TotCPUTime,AvgPhysicalRead,TotPhysicalRead,AvgLogicalRead,TotLogicalRead,AvgLogicalWrite,TotLogicalwrite,AvgRows,TotRows
+	,Avg_clr_time,Tot_clr_time,DiffNoOfExePlans,FinalNoOfExePlans,sql_handle,statement_start_offset,statement_end_offset,plan_handle,query_hash,PreRunime,PostRunime
 into master..TopQueries
 from ##tmp_set_diff_Detail_plan
 --where diff_execution_count>20 or TotCPUTime>5000 or TotLogicalRead>5000 or TotPhysicalRead>2000
@@ -136,3 +146,37 @@ order by AvgCPUTime desc
 
 select * from master..TopQueries order by TotCPUTime desc
 
+-- select diff_execution_count,* from master..TopQueries order by diff_execution_count desc
+
+-- select AvgCPUTime,* from master..TopQueries order by AvgCPUTime desc
+
+-- select * from master..TopQueries order by TotPhysicalRead desc
+
+-- select AvgLogicalRead,* from master..TopQueries order by AvgLogicalRead desc
+
+-- select TotLogicalwrite,* from master..TopQueries order by TotLogicalwrite desc
+
+-- select TotRows,* from master..TopQueries order by TotRows desc
+
+
+-- select * from ##tmp_set_diff_all where query_hash = 0xE2049D09495FF6D6
+-- 0xE2049D09495FF6D6
+-- 0x044DE9A79CE03870
+-- select * from ##tmp_set_diff_all where sql_handle =  0x020000003B539005D7FC2995374A3CBE1428766CC16A0F470000000000000000000000000000000000000000
+
+
+
+--select 
+--	SUBSTRING(QueryText.text, (statement_start_offset /2)+1, 
+--	(isnull(CASE statement_end_offset
+--			  WHEN -1 THEN DATALENGTH(QueryText.text)
+--			  WHEN 0 THEN DATALENGTH(QueryText.text)
+--			 ELSE statement_end_offset
+--			 END,'') - statement_start_offset/2)) AS QueryExecuted
+--	,QueryStats.*
+--	,QueryText.dbid as QueryText_DatabaseID, db_name(QueryText.dbid) as QueryText_DatabaseName,QueryText.objectid as QueryText_Objectid,object_name(QueryText.objectid, QueryText.dbid) as QueryText_ObjectName
+--	,OBJECT_SCHEMA_NAME(QueryText.objectid, QueryText.dbid) AS QueryText_schema_name
+--	,QueryText.number as QueryText_number,QueryText.encrypted as QueryText_encrypted,QueryText.text as QueryText_text
+--from ##tmp_set_diff as QueryStats
+--cross apply sys.dm_exec_sql_text(QueryStats.sql_handle) as QueryText
+--where sql_handle =  0x020000003B539005D7FC2995374A3CBE1428766CC16A0F470000000000000000000000000000000000000000

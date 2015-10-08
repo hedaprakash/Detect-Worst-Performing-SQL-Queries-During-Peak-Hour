@@ -14,9 +14,14 @@ select
 	,total_worker_time /execution_count as AvgCPUTime
 	,statement_start_offset,statement_end_offset
 	,(case when QueryText.dbid is null then OBJECT_NAME(QueryText.objectid)  else OBJECT_NAME(QueryText.objectid, QueryText.dbid)  end) as ObjectName
+	,OBJECT_SCHEMA_NAME(QueryText.objectid, QueryText.dbid) AS QueryText_schema_name
 	,query_hash
 	,plan_handle
 	,sql_handle
 from sys.dm_exec_query_stats as QueryStats
 cross apply sys.dm_exec_sql_text(QueryStats.sql_handle) as QueryText
+-- order by execution_count desc
+order by AvgCPUTime desc
+
+-- select * from sys.dm_exec_query_stats as QueryStats where query_hash = 0x044DE9A79CE03870
 

@@ -16,6 +16,9 @@
 #| = : = : = : = : = : = : = : = : = : = : = : = : = : = : = : = : = : = : = :	|  
 #+-----------------------------------------------------------------------------*/  
 -- create database 
+if db_id('dbastuff') is null create database dbastuff
+go
+
 USE dbastuff
 GO
 set nocount on
@@ -55,6 +58,9 @@ CREATE TABLE [dbo].[TopCpuQueries](
 
 GO
 
+
+if db_id('testdb') is null create database testdb
+go
 
 USE testdb
 GO
